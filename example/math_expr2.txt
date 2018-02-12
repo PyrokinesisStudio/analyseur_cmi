@@ -1,0 +1,1 @@
+a + (sin(x) - cos(x - t / r * 2) * sqrt(5 * tan(8 + 9 * t))
