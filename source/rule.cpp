@@ -7,32 +7,32 @@ const char Rule::Lexeme::names[3] =  {
 		'e' // EMPTY
 };
 
-Rule::Lexeme::Lexeme(const std::string& str)
+Rule::Lexeme::Lexeme(const std::string& token)
 {
-	if (str.front() == '<' && str.back() == '>') {
+	if (token.front() == '<' && token.back() == '>') {
 		m_type = NON_TERMINAL;
-		m_value = str.substr(1, str.size() - 2);
+		m_value = token.substr(1, token.size() - 2);
 	}
-	else if (str.front() == '"' && str.back() == '"') {
+	else if (token.front() == '"' && token.back() == '"') {
 		m_type = TERMINAL;
-		m_value = str.substr(1, str.size() - 2);
+		m_value = token.substr(1, token.size() - 2);
 	}
-	else if (str == "E") {
+	else if (token == "E") {
 		m_type = EMPTY;
 		m_value = "E";
 	}
 }
 
-Rule::Rule(const std::string& name, const StringList& content)
+Rule::Rule(const std::string& name, const StringList& tokens)
 {
 	m_name = name.substr(1, name.size() - 2);
 	m_options.emplace_back();
-	for (const std::string& str : content) {
-		if (str == "|") {
+	for (const std::string& token : tokens) {
+		if (token == "|") {
 			m_options.emplace_back();
 		}
 		else {
-			m_options.back().emplace_back(str);
+			m_options.back().emplace_back(token);
 		}
 	}
 }

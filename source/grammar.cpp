@@ -8,24 +8,24 @@ Grammar::Grammar(std::istream& stream)
 {
     std::string line;
 	while (!std::getline(stream, line).eof()) {
-		const StringList lexeme = SplitBlank(line);
+		const StringList tokens = SplitBlank(line);
 		// Ignore empty lines.
-		if (lexeme.empty()) {
+		if (tokens.empty()) {
 			continue;
 		}
 
-		const StringList::const_iterator it = std::find(lexeme.begin(), lexeme.end(), "::=");
-		if (it == lexeme.end()) {
+		const StringList::const_iterator it = std::find(tokens.begin(), tokens.end(), "::=");
+		if (it == tokens.end()) {
 			ErrorM("Invalid BNF: " << line);
 			continue;
 		}
 
-		const StringList leftLexeme(lexeme.begin(), it);
-		const StringList rightLexeme(std::next(it), lexeme.end());
+		const StringList leftTokens(tokens.begin(), it);
+		const StringList rightTokens(std::next(it), tokens.end());
 
-		const std::string& ruleName = leftLexeme.front();
+		const std::string& ruleName = leftTokens.front();
 
-		const Rule rule(ruleName, rightLexeme);
+		const Rule rule(ruleName, rightTokens);
 		std::cout << "Rule <" << rule.GetName() << ">, ";
 		rule.Print();
 

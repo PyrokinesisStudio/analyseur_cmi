@@ -12,24 +12,24 @@
 class LexicalAnalyzer
 {
 public:
-	enum TokenType {
+	enum LexemeType {
 		PONCTUATION,
 		INTEGER,
 		FLOAT,
 		KEYWORD, // Must be before identifier.
 		IDENTIFIER,
 		OPERATOR,
-		NUM_TOKEN
+		NUM_LEXEME_TYPE
 	};
 
-	class Token
+	class Lexeme
 	{
 	public:
 		const std::string m_value;
-		TokenType m_type;
+		LexemeType m_type;
 	};
 
-	using TokenList = std::vector<Token>;
+	using LexemeList = std::vector<Lexeme>;
 
 private:
 	/** String of char used to separate the input string.
@@ -38,10 +38,10 @@ private:
 	std::string m_separators;
 
 	/// The regex to match all tokens type.
-	std::array<std::regex, NUM_TOKEN> m_regexes;
+	std::array<std::regex, NUM_LEXEME_TYPE> m_regexes;
 
 public:
 	LexicalAnalyzer(std::istream& stream);
 
-	TokenList Process(const std::string& content);
+	LexemeList Process(const std::string& content);
 };

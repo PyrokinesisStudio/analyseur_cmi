@@ -35,8 +35,8 @@ int main(int argc, char **argv)
     }
 
     SyntaxAnalyzer::AnalyzeMode mode = SyntaxAnalyzer::LL_NAIVE;
-	if (argc > 3) {
-		const std::string modeStr = argv[3];
+	if (argc > 4) {
+		const std::string modeStr = argv[4];
 		static const std::map<std::string, SyntaxAnalyzer::AnalyzeMode> convertTable = {
 			{"naive", SyntaxAnalyzer::LL_NAIVE},
 			{"stack", SyntaxAnalyzer::LL_STACK}
@@ -55,10 +55,10 @@ int main(int argc, char **argv)
 	LexicalAnalyzer lexicalAnalyzer(fileRegex);
 
     const std::string content((std::istreambuf_iterator<char>(fileSrc)), std::istreambuf_iterator<char>());
-	const LexicalAnalyzer::TokenList tokens = lexicalAnalyzer.Process(content);
+	const LexicalAnalyzer::LexemeList lexemes = lexicalAnalyzer.Process(content);
 
-	for (const LexicalAnalyzer::Token& token : tokens) {
-		std::cout << token.m_value << " (" << token.m_type << ")" << std::endl;
+	for (const LexicalAnalyzer::Lexeme& lexeme : lexemes) {
+		std::cout << lexeme.m_value << " (" << lexeme.m_type << ")" << std::endl;
 	}
 
 // 	SyntaxAnalyzer analyzer(grammar, tokens);

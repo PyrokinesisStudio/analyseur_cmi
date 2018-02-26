@@ -24,7 +24,7 @@ public:
 		std::string m_value;
 
 		Lexeme() = default;
-		Lexeme(const std::string& str);
+		Lexeme(const std::string& token);
 	};
 
 	using LexemeList = std::vector<Lexeme>;
@@ -35,7 +35,7 @@ private:
 
 public:
 	Rule() = default;
-    Rule(const std::string& name, const StringList& content);
+    Rule(const std::string& name, const StringList& tokens);
 
 	const std::string& GetName() const;
     StringSet GetTerms() const;
