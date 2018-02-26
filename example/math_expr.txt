@@ -1,1 +1,1 @@
-99
+if(5-8+tempsVie){position.x=position.z*delta+58942*42.42f;}

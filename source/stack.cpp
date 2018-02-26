@@ -103,7 +103,7 @@ bool Stack::ValidateItem()
 	if (item.Validate()) {
 		// If all the lexeme of the top rule is validated we pass to the parent rule.
 		m_items.pop_back();
-		// The parent rule has one lexeme validated indirectly.
+		// The parent rule has one lexeme validated indirectly (the previous rule itself).
 		return ValidateItem();
 	}
 

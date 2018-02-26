@@ -34,15 +34,28 @@ StringList SplitBlank(const std::string& content)
 	return list;
 }
 
-StringList Tokenize(const std::string& content, const StringSet& sep)
+StringList SplitBlankAndSeparator(const std::string& content, const std::string& sep)
 {
     const StringList split = SplitBlank(content);
 	StringList list;
 
-	// Naive tokenize.
 	for (const std::string& str : split) {
-		for (const char c : str) {
-			list.emplace_back(1, c);
+		unsigned short lastId = 0;
+		for (unsigned short i = 0, size = str.size(); i < size; ++i) {
+			const char c = str[i];
+			if (sep.find(c) != std::string::npos) {
+				// Two consecutive separators ?
+				if (lastId != i) {
+					list.push_back(str.substr(lastId, i - lastId));
+				}
+				list.emplace_back(1, c);
+				// + 1 to exclude the separator.
+				lastId = i + 1;
+			}
+		}
+		// Nothing changed.
+		if (lastId == 0) {
+			list.push_back(str);
 		}
 	}
 

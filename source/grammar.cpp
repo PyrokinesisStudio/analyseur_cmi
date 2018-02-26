@@ -14,7 +14,7 @@ Grammar::Grammar(std::istream& stream)
 			continue;
 		}
 
-		const StringList::const_iterator it = std::find(lexeme.begin(), lexeme.end(), "=");
+		const StringList::const_iterator it = std::find(lexeme.begin(), lexeme.end(), "::=");
 		if (it == lexeme.end()) {
 			ErrorM("Invalid BNF: " << line);
 			continue;

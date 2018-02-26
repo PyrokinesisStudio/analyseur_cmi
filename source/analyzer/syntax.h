@@ -5,7 +5,7 @@
 class Grammar;
 class Stack;
 
-class Analyzer
+class SyntaxAnalyzer
 {
 public:
     enum AnalyzeMode {
@@ -23,7 +23,7 @@ private:
 	const Rule::Lexeme& ExpandStack(Stack& stack);
 
 public:
-	Analyzer(const Grammar& grammar, const StringList& tokens);
+	SyntaxAnalyzer(const Grammar& grammar, const StringList& tokens);
 
-    void Analyze(AnalyzeMode mode);
+    void Process(AnalyzeMode mode);
 };

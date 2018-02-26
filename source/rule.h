@@ -42,8 +42,6 @@ public:
 	const std::vector<LexemeList>& GetOptions() const;
 
 	void Print() const;
-
-	bool Match(const Grammar& grammar, StringList::const_iterator& it, const StringList& tokens) const;
 };
 
 inline std::ostream& operator<< (std::ostream& out, const Rule::Lexeme& lexeme)

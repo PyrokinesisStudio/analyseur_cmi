@@ -1,9 +1,19 @@
-<digit> = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+<alpha> ::= "a"
 
-<number> = <digit> <number> | <digit>
+<number2> ::= <digit> <number> | <digit>
+<number> ::= <digit> <number'>
+<number'> ::= <number> | E
+<name> ::= <alpha> <name> | <alpha>
 
-<op> = "+" | "-" | "*" | "/"
+<op> ::= "+" | "-" | "*" | "/"
 
-<expr> = <number> <op> <expr> | <number>
+<expr> ::= <number> <op> <expr> | <number>
 
-<root> = <number>
+<affe> ::= <name> "=" <expr> ";"
+
+<instr> ::= "{" <instr> "}" | <affe>
+
+<cond> ::= "i" "(" <expr> ")" <instr>
+
+<root> ::= <cond>
