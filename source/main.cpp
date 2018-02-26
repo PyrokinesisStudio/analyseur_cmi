@@ -55,10 +55,10 @@ int main(int argc, char **argv)
 	LexicalAnalyzer lexicalAnalyzer(fileRegex);
 
     const std::string content((std::istreambuf_iterator<char>(fileSrc)), std::istreambuf_iterator<char>());
-	const LexicalAnalyzer::LexemeList lexemes = lexicalAnalyzer.Process(content);
+	const LexemeList lexemes = lexicalAnalyzer.Process(content);
 
-	for (const LexicalAnalyzer::Lexeme& lexeme : lexemes) {
-		std::cout << lexeme.m_value << " (" << lexeme.m_type << ")" << std::endl;
+	for (const Lexeme& lexeme : lexemes) {
+		std::cout << lexeme.GetToken() << " (" << lexeme.GetType() << ")" << std::endl;
 	}
 
 // 	SyntaxAnalyzer analyzer(grammar, tokens);

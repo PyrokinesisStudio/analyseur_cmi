@@ -3,7 +3,7 @@
 #include "lexical.h"
 #include "tokenizer.h"
 
-static const std::array<std::string, LexicalAnalyzer::NUM_LEXEME_TYPE> regexNameTable = {
+static const std::array<std::string, Lexeme::NUM_LEXEME_TYPE> regexNameTable = {
 	"<ponctuation>", // PONCTUATION
 	"<integer>", // INTEGER
 	"<float>", // FLOAT
@@ -39,7 +39,7 @@ LexicalAnalyzer::LexicalAnalyzer(std::istream& stream)
 		}
 		else {
 			bool sucess = false;
-			for (unsigned short i = 0; i < NUM_LEXEME_TYPE; ++i) {
+			for (unsigned short i = 0; i < Lexeme::NUM_LEXEME_TYPE; ++i) {
 				if (regexNameTable[i] == regexName) {
 					m_regexes[i] = std::regex(rightTokens.front());
 					sucess = true;
@@ -55,16 +55,16 @@ LexicalAnalyzer::LexicalAnalyzer(std::istream& stream)
     }
 }
 
-LexicalAnalyzer::LexemeList LexicalAnalyzer::Process(const std::string& content)
+LexemeList LexicalAnalyzer::Process(const std::string& content)
 {
 	const StringList tokens = SplitBlankAndSeparator(content, m_separators);
 
 	LexemeList list;
 	for (const std::string& str : tokens) {
 		bool valid = false;
-		for (unsigned short i = 0; i < NUM_LEXEME_TYPE; ++i) {
+		for (unsigned short i = 0; i < Lexeme::NUM_LEXEME_TYPE; ++i) {
 			if (std::regex_search(str, m_regexes[i])) {
-				list.push_back({str, (LexemeType)i});
+				list.emplace_back(str, (Lexeme::Type)i);
 				valid = true;
 				break;
 			}

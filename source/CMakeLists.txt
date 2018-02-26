@@ -3,6 +3,7 @@ project(Common)
 
 set(SRCS
 	grammar.cpp
+	lexeme.cpp
 	rule.cpp
 	stack.cpp
 	tokenizer.cpp
@@ -11,6 +12,7 @@ set(SRCS
 set(INCLS
 	common.h
 	grammar.h
+	lexeme.h
 	rule.h
 	stack.h
 	tokenizer.h

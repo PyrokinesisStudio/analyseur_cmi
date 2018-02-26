@@ -10,6 +10,8 @@ class Grammar;
 class Rule
 {
 public:
+	/**- \brief Lexeme of rules, used only for this purpose.
+	 */
 	class Lexeme
 	{
 	public:

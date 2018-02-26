@@ -1,19 +1,9 @@
-<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
-<alpha> ::= "a"
+<expr> ::= <t_integer> <t_operator> <expr> | <t_integer>
 
-<number2> ::= <digit> <number> | <digit>
-<number> ::= <digit> <number'>
-<number'> ::= <number> | E
-<name> ::= <alpha> <name> | <alpha>
-
-<op> ::= "+" | "-" | "*" | "/"
-
-<expr> ::= <number> <op> <expr> | <number>
-
-<affe> ::= <name> "=" <expr> ";"
+<affe> ::= <t_identifier> "=" <expr> ";"
 
 <instr> ::= "{" <instr> "}" | <affe>
 
-<cond> ::= "i" "(" <expr> ")" <instr>
+<cond> ::= "if" "(" <expr> ")" <instr>
 
 <root> ::= <cond>
