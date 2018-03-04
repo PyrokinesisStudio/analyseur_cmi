@@ -61,8 +61,8 @@ int main(int argc, char **argv)
 		std::cout << lexeme.GetToken() << " (" << lexeme.GetType() << ")" << std::endl;
 	}
 
-// 	SyntaxAnalyzer analyzer(grammar, tokens);
-// 	analyzer.Process(mode);
+	SyntaxAnalyzer analyzer(grammar, lexemes);
+	analyzer.Process(mode);
 
     fileSrc.close();
     fileBnf.close();

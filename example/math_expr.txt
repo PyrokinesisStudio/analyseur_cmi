@@ -1,3 +1,3 @@
-if (5-8+tempsVie+ifelsefordowhile) {
+if (5-8++tempsVie+ifelsefordowhile) {
 	position.x=position.z*delta+58942*42.42f;
 }

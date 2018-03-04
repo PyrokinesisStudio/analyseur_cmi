@@ -29,10 +29,6 @@ Grammar::Grammar(std::istream& stream)
 		std::cout << "Rule <" << rule.GetName() << ">, ";
 		rule.Print();
 
-		// Extract terminals from rules.
-		const StringSet terms = rule.GetTerms();
-		m_terms.insert(terms.begin(), terms.end());
-
 		m_rules[rule.GetName()] = rule;
     }
 }
@@ -45,9 +41,4 @@ const Rule& Grammar::GetRule(const std::string& name) const
 		return it->second;
 	}
 	return error;
-}
-
-const StringSet& Grammar::GetTerms() const
-{
-    return m_terms;
 }

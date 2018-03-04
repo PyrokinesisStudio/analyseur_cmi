@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <set>
 #include <string>
 #include <iostream>
 
@@ -19,4 +18,3 @@
 #define SuccessRuleM(rule, x) RulePrefixM(rule); SuccessM(x);
 
 using StringList = std::vector<std::string>;
-using StringSet = std::set<std::string>;

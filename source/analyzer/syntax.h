@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rule.h"
+#include "lexeme.h"
 
 class Grammar;
 class Stack;
@@ -15,15 +16,15 @@ public:
 
 private:
 	const Grammar& m_grammar;
-	const StringList& m_tokens;
+	const LexemeList& m_lexemes;
 
 	void AnalyzeLLNaive();
 	void AnalyzeLLStack();
 
-	const Rule::Lexeme& ExpandStack(Stack& stack);
+	const Rule::Condition& ExpandStack(Stack& stack);
 
 public:
-	SyntaxAnalyzer(const Grammar& grammar, const StringList& tokens);
+	SyntaxAnalyzer(const Grammar& grammar, const LexemeList& lexemes);
 
     void Process(AnalyzeMode mode);
 };

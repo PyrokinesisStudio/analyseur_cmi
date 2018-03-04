@@ -9,5 +9,5 @@ include_directories("source/")
 include_directories("source/analyzer/")
 
 add_executable(analyzer source/main.cpp)
-target_link_libraries(analyzer Common)
 target_link_libraries(analyzer Analyzer)
+target_link_libraries(analyzer Common)

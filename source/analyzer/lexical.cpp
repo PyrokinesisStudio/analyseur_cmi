@@ -3,15 +3,6 @@
 #include "lexical.h"
 #include "tokenizer.h"
 
-static const std::array<std::string, Lexeme::NUM_LEXEME_TYPE> regexNameTable = {
-	"<ponctuation>", // PONCTUATION
-	"<integer>", // INTEGER
-	"<float>", // FLOAT
-	"<keyword>", // KEYWORD
-	"<identifier>", // IDENTIFIER
-	"<operator>", // OPERATOR
-};
-
 LexicalAnalyzer::LexicalAnalyzer(std::istream& stream)
 {
     std::string line;
@@ -40,7 +31,9 @@ LexicalAnalyzer::LexicalAnalyzer(std::istream& stream)
 		else {
 			bool sucess = false;
 			for (unsigned short i = 0; i < Lexeme::NUM_LEXEME_TYPE; ++i) {
-				if (regexNameTable[i] == regexName) {
+				// Comparing string.
+				const std::string& str = Lexeme::typeNameTable[i];
+				if (regexName.compare(1, str.size(), str) == 0) {
 					m_regexes[i] = std::regex(rightTokens.front());
 					sucess = true;
 					std::cout << "Regex " << regexName << ": " << rightTokens.front() << std::endl;;

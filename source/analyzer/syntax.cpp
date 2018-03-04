@@ -1,11 +1,12 @@
+#include <iomanip>
+
 #include "syntax.h"
 #include "grammar.h"
-
 #include "stack.h"
 
-SyntaxAnalyzer::SyntaxAnalyzer(const Grammar& grammar, const StringList& tokens)
+SyntaxAnalyzer::SyntaxAnalyzer(const Grammar& grammar, const LexemeList& lexemes)
 	:m_grammar(grammar),
-	m_tokens(tokens)
+	m_lexemes(lexemes)
 {
 }
 
@@ -19,32 +20,41 @@ void SyntaxAnalyzer::Process(AnalyzeMode mode)
     (this->*functions[mode])();
 }
 
-static void printTokenIt(StringList::const_iterator& it, const StringList& tokens)
+static void printTokenIt(const LexemeList::const_iterator& it, const LexemeList& lexemes)
 {
-	for (const std::string& str : tokens) {
-		std::cout << str;
+	for (const Lexeme& lexeme : lexemes) {
+		std::cout << lexeme.GetToken();
 	}
 	std::cout << std::endl;
-	const unsigned short pos = std::distance(tokens.begin(), it);
-	for (unsigned short i = 0; i < pos; ++i) {
-		std::cout << " ";
+	for (LexemeList::const_iterator cit = lexemes.cbegin(); cit != it; ++cit) {
+		for (unsigned short i = 0, size = cit->GetToken().size(); i < size; ++i) {
+			std::cout << " ";
+		}
 	}
 	std::cout << "^" << std::endl;
 }
 
-static bool matchRule(const Rule& rule, const Grammar& grammar, StringList::const_iterator& it, const StringList& tokens)
+static bool matchRule(const Rule& rule, const Grammar& grammar, LexemeList::const_iterator& it, const LexemeList& lexemes)
 {
-	StringList::const_iterator previt = it;
-	for (const Rule::LexemeList& option : rule.GetOptions()) {
+	LexemeList::const_iterator previt = it;
+	for (const Rule::ConditionList& proposal : rule.GetProposals()) {
 		bool fail = false;
-		DebugRuleM(rule, "Testing option: " << option);
-		for (const Rule::Lexeme& lexeme : option) {
-			DebugRuleM(rule, "Testing lexeme: " << lexeme);
-			switch (lexeme.m_type) {
-				case Rule::Lexeme::TERMINAL:
+		DebugRuleM(rule, "Testing proposal: " << proposal);
+		for (const Rule::Condition& cond : proposal) {
+			DebugRuleM(rule, "Testing condition: " << cond);
+
+			if (it == lexemes.end()) {
+				FailureRuleM(rule, "Reach end of line with staying condition.");
+				fail = true;
+				break;
+			}
+
+			switch (cond.m_type) {
+				case Rule::Condition::TERMINAL:
+				case Rule::Condition::TERMINAL_TYPE:
 				{
-					printTokenIt(it, tokens);
-					if (lexeme.m_value == *it) {
+					printTokenIt(it, lexemes);
+					if (cond.Match(*it)) {
 						++it;
 					}
 					else {
@@ -52,31 +62,27 @@ static bool matchRule(const Rule& rule, const Grammar& grammar, StringList::cons
 					}
 					break;
 				}
-				case Rule::Lexeme::NON_TERMINAL:
+				case Rule::Condition::NON_TERMINAL:
 				{
-					const Rule& childRule = grammar.GetRule(lexeme.m_value);
-					if (!matchRule(childRule, grammar, it, tokens)) {
+					const Rule& childRule = grammar.GetRule(cond.m_value);
+					if (!matchRule(childRule, grammar, it, lexemes)) {
 						fail = true;
 					}
 					break;
 				}
-				case Rule::Lexeme::EMPTY:
+				default:
 				{
 					break;
 				}
 			}
 			if (fail) {
-				FailureRuleM(rule, "Failed with option: " << option);
+				FailureRuleM(rule, "Failed with condition: " << cond.m_value);
 				it = previt;
-				break;
-			}
-			// TODO
-			if (it == tokens.end()) {
 				break;
 			}
 		}
 		if (!fail) {
-			SuccessRuleM(rule, "Succeed with option: " << option);
+			SuccessRuleM(rule, "Succeed with proposal: " << proposal);
 			return true;
 		}
 	}
@@ -87,10 +93,10 @@ static bool matchRule(const Rule& rule, const Grammar& grammar, StringList::cons
 void SyntaxAnalyzer::AnalyzeLLNaive()
 {
 	const Rule& root = m_grammar.GetRule("root");
-	StringList::const_iterator it = m_tokens.begin();
-	matchRule(root, m_grammar, it, m_tokens);
+	LexemeList::const_iterator it = m_lexemes.begin();
+	matchRule(root, m_grammar, it, m_lexemes);
 
-	if (it != m_tokens.end()) {
+	if (it != m_lexemes.end()) {
 		ErrorM("Failed to match entire expression.")
 	}
 }
@@ -98,8 +104,8 @@ void SyntaxAnalyzer::AnalyzeLLNaive()
 void SyntaxAnalyzer::AnalyzeLLStack()
 {
 	const Rule& root = m_grammar.GetRule("root");
-	StringList::const_iterator it = m_tokens.begin();
-	StringList::const_iterator end = m_tokens.end();
+	LexemeList::const_iterator it = m_lexemes.begin();
+	LexemeList::const_iterator end = m_lexemes.end();
 
 	Stack stack;
 	stack.ExpandTop(root);
@@ -117,21 +123,21 @@ void SyntaxAnalyzer::AnalyzeLLStack()
 	}*/
 
 	while (true) {
-		const Rule::Lexeme& top = ExpandStack(stack);
-		for (StringList::const_iterator jt = it; jt != end; ++jt) {
-			std::cout << *jt << " ";
+		const Rule::Condition& top = ExpandStack(stack);
+		for (LexemeList::const_iterator jt = it; jt != end; ++jt) {
+			std::cout << jt->GetToken() << " ";
 		}
 		std::cout << std::endl;
 
 		stack.Debug();
-		if (top.m_value == "E") {
-			// Doesn't consume a char.
+		if (top.m_type == Rule::Condition::EMPTY) {
+			// Don't consume a char.
 			if (stack.ValidateTop()) {
 				SuccessM("success");
 				break;
 			}
 		}
-		else if (top.m_value == *it) {
+		else if (top.Match(*it)) {
 			++it;
 			if (stack.ValidateTop()) {
 				SuccessM("success");
@@ -156,14 +162,14 @@ void SyntaxAnalyzer::AnalyzeLLStack()
 	}
 }
 
-const Rule::Lexeme& SyntaxAnalyzer::ExpandStack(Stack& stack)
+const Rule::Condition& SyntaxAnalyzer::ExpandStack(Stack& stack)
 {
-	while (stack.TopLexeme().m_type == Rule::Lexeme::NON_TERMINAL) {
-		const Rule::Lexeme& top = stack.TopLexeme();
+	while (stack.TopCondition().m_type == Rule::Condition::NON_TERMINAL) {
+		const Rule::Condition& top = stack.TopCondition();
 		const Rule& rule = m_grammar.GetRule(top.m_value);
 		stack.ExpandTop(rule);
 	}
 
-	return stack.TopLexeme();
+	return stack.TopCondition();
 }
 
