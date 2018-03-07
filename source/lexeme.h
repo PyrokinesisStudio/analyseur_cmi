@@ -8,31 +8,17 @@
  */
 class Lexeme
 {
-public:
-	enum Type {
-		NONE = -1,
-		PONCTUATION = 0,
-		INTEGER,
-		FLOAT,
-		KEYWORD, // Must be before identifier.
-		IDENTIFIER,
-		OPERATOR,
-		NUM_LEXEME_TYPE
-	};
-
-	/// The names corresponding to the types.
-	static const std::array<std::string, NUM_LEXEME_TYPE> typeNameTable;
-
 private:
 	/// The string value of this lexeme aka token.
 	std::string m_token;
-	Type m_type;
+	/// Type name from lexical rule definition.
+	std::string m_type;
 
 public:
-	Lexeme(const std::string& token, Type type);
+	Lexeme(const std::string& token, const std::string& type);
 
 	const std::string& GetToken() const;
-	Type GetType() const;
+	const std::string& GetType() const;
 };
 
 using LexemeList = std::vector<Lexeme>;

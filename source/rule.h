@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <ostream>
 
 #include "lexeme.h"
@@ -30,8 +31,6 @@ public:
 		static const char names[NUM_LEXEME_TYPE];
 
 		std::string m_value;
-		// Initialized if the condition is for terminal type.
-		Lexeme::Type m_terminalType;
 
 		Condition() = default;
 		Condition(const std::string& token);
@@ -40,21 +39,32 @@ public:
 	};
 
 	using ConditionList = std::vector<Condition>;
-	using ProposalList = std::vector<ConditionList>;
+	using ProposalSet = std::multiset<ConditionList>;
 
 private:
-    ProposalList m_proposals;
+    ProposalSet m_proposals;
+	std::map<std::string, ProposalSet> m_prefixedProposals;
 	std::string m_name;
+
+	void ConstructConditionPrefix(const ProposalSet& proposals, const ConditionList suffix, const Grammar& grammar);
 
 public:
 	Rule() = default;
     Rule(const std::string& name, const StringList& tokens);
 
+	void ConstructPrefix(const Grammar& grammar);
+
 	const std::string& GetName() const;
-	const ProposalList& GetProposals() const;
+	const ProposalSet& GetProposals() const;
+	const ProposalSet& GetProposals(const Lexeme& prefix) const;
 
 	void Print() const;
 };
+
+inline bool operator< (const Rule::ConditionList& l1, const Rule::ConditionList& l2)
+{
+	return (l1.size() > l2.size());
+}
 
 inline std::ostream& operator<< (std::ostream& out, const Rule::Condition& cond)
 {

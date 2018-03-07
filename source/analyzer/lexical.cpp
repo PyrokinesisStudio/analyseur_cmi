@@ -29,20 +29,9 @@ LexicalAnalyzer::LexicalAnalyzer(std::istream& stream)
 			std::cout << "Separators: " << m_separators << std::endl;
 		}
 		else {
-			bool sucess = false;
-			for (unsigned short i = 0; i < Lexeme::NUM_LEXEME_TYPE; ++i) {
-				// Comparing string.
-				const std::string& str = Lexeme::typeNameTable[i];
-				if (regexName.compare(1, str.size(), str) == 0) {
-					m_regexes[i] = std::regex(rightTokens.front());
-					sucess = true;
-					std::cout << "Regex " << regexName << ": " << rightTokens.front() << std::endl;;
-					break;
-				}
-			}
-
-			if (!sucess) {
-				ErrorM("Invalid regex name: " << line)
+			if (m_regexes.find(regexName) == m_regexes.end()) {
+				m_regexes[regexName] = rightTokens.front();
+				std::cout << "Regex " << regexName << ": " << rightTokens.front() << std::endl;;
 			}
 		}
     }
@@ -55,9 +44,10 @@ LexemeList LexicalAnalyzer::Process(const std::string& content)
 	LexemeList list;
 	for (const std::string& str : tokens) {
 		bool valid = false;
-		for (unsigned short i = 0; i < Lexeme::NUM_LEXEME_TYPE; ++i) {
-			if (std::regex_search(str, m_regexes[i])) {
-				list.emplace_back(str, (Lexeme::Type)i);
+		for (const auto& pair : m_regexes) {
+			if (std::regex_search(str, pair.second)) {
+				const std::string& type = pair.first;
+				list.emplace_back(str, type.substr(1, type.size() - 2));
 				valid = true;
 				break;
 			}

@@ -19,7 +19,7 @@ private:
 	std::string m_separators;
 
 	/// The regex to match all tokens type.
-	std::array<std::regex, Lexeme::NUM_LEXEME_TYPE> m_regexes;
+	std::map<std::string, std::regex> m_regexes;
 
 public:
 	LexicalAnalyzer(std::istream& stream);

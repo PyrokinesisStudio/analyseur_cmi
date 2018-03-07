@@ -10,26 +10,11 @@ const char Rule::Condition::names[Rule::Condition::NUM_LEXEME_TYPE] =  {
 };
 
 Rule::Condition::Condition(const std::string& token)
-	:m_terminalType(Lexeme::NONE)
 {
 	if (token.front() == '<' && token.back() == '>') {
 		if (token[1] == 't' && token[2] == '_') {
 			m_type = TERMINAL_TYPE;
 			m_value = token.substr(3, token.size() - 4);
-
-			// Searching terminal type.
-			bool found = false;
-			for (unsigned short i = 0, size = Lexeme::typeNameTable.size(); i < size; ++i) {
-				if (Lexeme::typeNameTable[i] == m_value) {
-					m_terminalType = (Lexeme::Type)i;
-					found = true;
-					break;
-				}
-			}
-
-			if (!found) {
-				ErrorM("Terminal type name \"" << m_value << "\" doesn't exist.");
-			}
 		}
 		else {
 			m_type = NON_TERMINAL;
@@ -55,7 +40,7 @@ bool Rule::Condition::Match(const Lexeme& lexeme) const
 		}
 		case TERMINAL_TYPE:
 		{
-			return (m_terminalType == lexeme.GetType());
+			return (m_value == lexeme.GetType());
 		}
 		default:
 		{
@@ -67,13 +52,67 @@ bool Rule::Condition::Match(const Lexeme& lexeme) const
 Rule::Rule(const std::string& name, const StringList& tokens)
 {
 	m_name = name.substr(1, name.size() - 2);
-	m_proposals.emplace_back();
+	ConditionList proposal;
 	for (const std::string& token : tokens) {
 		if (token == "|") {
-			m_proposals.emplace_back();
+			m_proposals.insert(proposal);
+			proposal = ConditionList();
 		}
 		else {
-			m_proposals.back().emplace_back(token);
+			proposal.emplace_back(token);
+		}
+	}
+	m_proposals.insert(proposal);
+}
+
+void Rule::ConstructConditionPrefix(const ProposalSet& proposals, const ConditionList suffix, const Grammar& grammar)
+{
+	for (const ConditionList& proposal : proposals) {
+		const Condition& cond = proposal.front();
+		switch (cond.m_type) {
+			case Rule::Condition::TERMINAL:
+			case Rule::Condition::TERMINAL_TYPE:
+			case Rule::Condition::EMPTY:
+			{
+				// Constructing the complete proposal by appending the suffix proposal.
+				ConditionList prop = proposal;
+				prop.insert(prop.end(), suffix.begin(), suffix.end());
+
+				m_prefixedProposals[cond.m_value].insert(prop);
+				break;
+			}
+			case Rule::Condition::NON_TERMINAL:
+			{
+				// Get the rule corresponding to the first non-terminal.
+				const Rule& rule = grammar.GetRule(cond.m_value);
+
+				/* Construct the suffix proposal based on the current prposal without its
+				 * first condition (the one which will be replaced in next call) and appending
+				 * the previous suffix proposal.
+				 */
+				ConditionList suf(++proposal.begin(), proposal.end());
+				suf.insert(suf.end(), suffix.begin(), suffix.end());
+
+				ConstructConditionPrefix(rule.GetProposals(), suf, grammar);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+	}
+}
+
+void Rule::ConstructPrefix(const Grammar& grammar)
+{
+	ConstructConditionPrefix(m_proposals, {}, grammar);
+
+	std::cout << "rule " << m_name << std::endl;
+	for (const auto& pair : m_prefixedProposals) {
+		std::cout << "\t" << pair.first << std::endl;
+		for (const ConditionList& proposal : pair.second) {
+			std::cout << "\t\t" << proposal << std::endl;
 		}
 	}
 }
@@ -83,9 +122,30 @@ const std::string& Rule::GetName() const
 	return m_name;
 }
 
-const Rule::ProposalList& Rule::GetProposals() const
+const Rule::ProposalSet& Rule::GetProposals() const
 {
 	return m_proposals;
+}
+
+const Rule::ProposalSet& Rule::GetProposals(const Lexeme& prefix) const
+{
+	const std::map<std::string, ProposalSet>::const_iterator tokenIt = m_prefixedProposals.find(prefix.GetToken());
+	if (tokenIt != m_prefixedProposals.end()) {
+		return tokenIt->second;
+	}
+
+	const std::map<std::string, ProposalSet>::const_iterator typeIt = m_prefixedProposals.find(prefix.GetType());
+	if (typeIt != m_prefixedProposals.end()) {
+		return typeIt->second;
+	}
+
+	const std::map<std::string, ProposalSet>::const_iterator emptyIt = m_prefixedProposals.find("E");
+	if (emptyIt != m_prefixedProposals.end()) {
+		return emptyIt->second;
+	}
+
+	const static ProposalSet empty;
+	return empty;
 }
 
 void Rule::Print() const

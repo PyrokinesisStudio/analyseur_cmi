@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project(Common)
 
+set(CMAKE_CXX_FLAGS "-g -ggdb")
+
 set(SRCS
 	grammar.cpp
 	lexeme.cpp

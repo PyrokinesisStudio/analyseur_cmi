@@ -37,7 +37,7 @@ static void printTokenIt(const LexemeList::const_iterator& it, const LexemeList&
 static bool matchRule(const Rule& rule, const Grammar& grammar, LexemeList::const_iterator& it, const LexemeList& lexemes)
 {
 	LexemeList::const_iterator previt = it;
-	for (const Rule::ConditionList& proposal : rule.GetProposals()) {
+	for (const Rule::ConditionList& proposal : rule.GetProposals(*it)) {
 		bool fail = false;
 		DebugRuleM(rule, "Testing proposal: " << proposal);
 		for (const Rule::Condition& cond : proposal) {
@@ -108,7 +108,7 @@ void SyntaxAnalyzer::AnalyzeLLStack()
 	LexemeList::const_iterator end = m_lexemes.end();
 
 	Stack stack;
-	stack.ExpandTop(root);
+	stack.ExpandTop(root, root.GetProposals(*it));
 
 	/*for (unsigned short i = 0; i < 50; ++i) {
 		const Rule::Lexeme& top = ExpandStack(stack);
@@ -123,7 +123,7 @@ void SyntaxAnalyzer::AnalyzeLLStack()
 	}*/
 
 	while (true) {
-		const Rule::Condition& top = ExpandStack(stack);
+		const Rule::Condition& top = ExpandStack(stack, *it);
 		for (LexemeList::const_iterator jt = it; jt != end; ++jt) {
 			std::cout << jt->GetToken() << " ";
 		}
@@ -162,12 +162,17 @@ void SyntaxAnalyzer::AnalyzeLLStack()
 	}
 }
 
-const Rule::Condition& SyntaxAnalyzer::ExpandStack(Stack& stack)
+const Rule::Condition& SyntaxAnalyzer::ExpandStack(Stack& stack, const Lexeme& prefix)
 {
+	/* Unneeded loop if the proposals are get from a prefix table as the prefix computation
+	 * compute proposals with the lexeme key at its left.
+	 * In this case it behaves only as a condition.
+	 */
 	while (stack.TopCondition().m_type == Rule::Condition::NON_TERMINAL) {
 		const Rule::Condition& top = stack.TopCondition();
 		const Rule& rule = m_grammar.GetRule(top.m_value);
-		stack.ExpandTop(rule);
+		const Rule::ProposalSet& proposals = rule.GetProposals(prefix);
+		stack.ExpandTop(rule, proposals);
 	}
 
 	return stack.TopCondition();

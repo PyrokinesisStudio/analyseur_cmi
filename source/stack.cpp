@@ -2,18 +2,13 @@
 
 #include "stack.h"
 
-Stack::Item::Item(const Rule& rule)
+Stack::Item::Item(const Rule& rule, const Rule::ProposalSet& proposals)
 	:m_rule(rule),
+	m_nbProposals(proposals.size()),
 	m_validated(0)
 {
-	const Rule::ProposalList& proposals = rule.GetProposals();
 	m_currentProposal = proposals.begin();
 	m_endProposal = proposals.end();
-}
-
-const Rule& Stack::Item::GetRule() const
-{
-	return m_rule;
 }
 
 void Stack::Item::Unpack(std::deque<Rule::Condition>& stack)
@@ -53,9 +48,9 @@ const Rule::Condition& Stack::TopCondition() const
 	return m_conditions.back();
 }
 
-void Stack::ExpandTop(const Rule& rule)
+void Stack::ExpandTop(const Rule& rule, const Rule::ProposalSet& proposals)
 {
-	Item item(rule);
+	Item item(rule, proposals);
 
 	// Replace the top condition.
 	if (!m_conditions.empty()) {

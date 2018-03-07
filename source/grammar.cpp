@@ -30,7 +30,13 @@ Grammar::Grammar(std::istream& stream)
 		rule.Print();
 
 		m_rules[rule.GetName()] = rule;
-    }
+	}
+
+	// Generate prefix for all rules.
+	for (auto& pair : m_rules) {
+		Rule& rule = pair.second;
+		rule.ConstructPrefix(*this);
+	}
 }
 
 const Rule& Grammar::GetRule(const std::string& name) const

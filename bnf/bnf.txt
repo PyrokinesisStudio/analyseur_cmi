@@ -1,6 +1,7 @@
-<value> ::= <t_integer> | <t_identifier> | <t_float>
+<value> ::= <t_identifier> | <t_integer> | <t_float>
 
-<expr> ::= <value> <t_operator> <expr> | <value>
+<expr> ::= <value> <expr'>
+<expr'> ::= <t_operator> <expr> | E
 
 <affe> ::= <t_identifier> "=" <expr> ";"
 

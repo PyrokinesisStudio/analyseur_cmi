@@ -21,7 +21,7 @@ private:
 	void AnalyzeLLNaive();
 	void AnalyzeLLStack();
 
-	const Rule::Condition& ExpandStack(Stack& stack);
+	const Rule::Condition& ExpandStack(Stack& stack, const Lexeme& prefix);
 
 public:
 	SyntaxAnalyzer(const Grammar& grammar, const LexemeList& lexemes);
