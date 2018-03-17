@@ -1,0 +1,2 @@
+<separator> ::= ab
+<identifier> ::= a|b

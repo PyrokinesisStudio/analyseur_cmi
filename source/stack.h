@@ -23,6 +23,9 @@ public:
 	public:
 		Item(const Rule& rule, const Rule::ProposalSet& proposals);
 
+		const Rule& GetRule() const;
+		const Rule::Proposal& GetCurrentProposal() const;
+
 		/// Unpack lexemes of the current proposal on stack.
 		void Unpack(std::deque<Rule::Condition>& stack);
 		/** Remove lexemes of the current proposal on the stack less a delta.
@@ -50,7 +53,7 @@ public:
 	 * Return the number of char to restore.
 	 * If all the proposals of the current item were tested, the item is pop,
 	 * its lexemes packed and the parent item test an other proposal.
-	 * \param reursive When a item is pop and that the parent item has
+	 * \param recursive When a item is pop and that the parent item has
 	 * no more proposal, the parent item will be pop and will try to pack its
 	 * lexeme but we didn't restored the last lexeme, the one which was expanded
 	 * in the child item. To avoid restore this lexeme we just notify that
@@ -61,19 +64,26 @@ public:
 	bool ValidateTop();
 
 	void Debug();
+	/// Used only for debugging purpose.
+	const Rule& GetTopRule() const;
+	/// Used only for debugging purpose.
+	const Rule::Proposal& GetTopCurrentProposal() const;
 };
 
 inline std::ostream& operator<< (std::ostream& out, const Stack::Item& item)
 {
-	const unsigned short nbProposals = item.m_rule.GetProposals().size();
-	const unsigned short invalidProposals = nbProposals - std::distance(item.m_currentProposal, item.m_endProposal) + 1;
-
 	out << termcolor::bold << item.m_rule.GetName() << termcolor::reset;
 	out << "(";
-	out << termcolor::red << invalidProposals << termcolor::reset;
-	out << "/";
-	out << termcolor::yellow << nbProposals << termcolor::reset;
-	out << " | ";
+
+	const unsigned short nbProposals = item.m_nbProposals;
+	if (nbProposals > 1) {
+		const unsigned short invalidProposals = nbProposals - std::distance(item.m_currentProposal, item.m_endProposal) + 1;
+		out << termcolor::red << invalidProposals << termcolor::reset;
+		out << "/";
+		out << termcolor::yellow << nbProposals << termcolor::reset;
+		out << " | ";
+	}
+
 	out << termcolor::green << item.m_validated << termcolor::reset << ")";
 
 	return out;

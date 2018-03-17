@@ -2,6 +2,7 @@
 
 #include "rule.h"
 #include "lexeme.h"
+#include "derivation_tree.h"
 
 class Grammar;
 class Stack;
@@ -18,13 +19,15 @@ private:
 	const Grammar& m_grammar;
 	const LexemeList& m_lexemes;
 
-	void AnalyzeLLNaive();
-	void AnalyzeLLStack();
+	void AnalyzeLLNaive(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
+            LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const;
+	void AnalyzeLLStack(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
+            LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const;
 
-	const Rule::Condition& ExpandStack(Stack& stack, const Lexeme& prefix);
+	bool ExpandStack(Stack& stack, const Lexeme& prefix) const;
 
 public:
 	SyntaxAnalyzer(const Grammar& grammar, const LexemeList& lexemes);
 
-    void Process(AnalyzeMode mode);
+    void Process(AnalyzeMode mode) const;
 };

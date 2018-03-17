@@ -39,18 +39,37 @@ public:
 	};
 
 	using ConditionList = std::vector<Condition>;
-	using ProposalSet = std::multiset<ConditionList>;
+
+	class Proposal
+	{
+	private:
+		ConditionList m_conditions;
+		unsigned short m_semanticAction;
+
+	public:
+		static const Proposal empty;
+
+		Proposal();
+		Proposal(const ConditionList& conditions, const std::string& semanticAction);
+		Proposal(const ConditionList& conditions, unsigned short semanticAction);
+
+		const ConditionList& GetConditions() const;
+		short GetSemanticAction() const;
+	};
+
+	using ProposalSet = std::multiset<Proposal>;
 
 private:
     ProposalSet m_proposals;
 	std::map<std::string, ProposalSet> m_prefixedProposals;
 	std::string m_name;
 
-	void ConstructConditionPrefix(const ProposalSet& proposals, const ConditionList suffix, const Grammar& grammar);
+	void ConstructConditionPrefix(const ProposalSet& proposals, const ConditionList suffix,
+			unsigned short cumulSemanticAction, const Grammar& grammar);
 
 public:
 	Rule() = default;
-    Rule(const std::string& name, const StringList& tokens);
+    Rule(const std::string& name, const StringList& proposalTokens, const StringList& semanticTokens);
 
 	void ConstructPrefix(const Grammar& grammar);
 
@@ -61,22 +80,36 @@ public:
 	void Print() const;
 };
 
-inline bool operator< (const Rule::ConditionList& l1, const Rule::ConditionList& l2)
+inline bool operator==(const Rule::Condition& c1, const Rule::Condition& c2)
 {
-	return (l1.size() > l2.size());
+	return (c1.m_value == c2.m_value && c1.m_type == c2.m_type);
+}
+
+inline bool operator< (const Rule::Proposal& p1, const Rule::Proposal& p2)
+{
+	return (p1.GetConditions().size() > p2.GetConditions().size());
 }
 
 inline std::ostream& operator<< (std::ostream& out, const Rule::Condition& cond)
 {
-	out << cond.m_value << " (" << Rule::Condition::names[cond.m_type] << ")";
+	out << cond.m_value << termcolor::italic << " (" << Rule::Condition::names[cond.m_type] << ")" << termcolor::italic_off;
 	return out;
 }
 
 inline std::ostream& operator<< (std::ostream& out, const Rule::ConditionList& list)
 {
-	out << list.front();
-	for (unsigned int i = 1, size = list.size(); i < size; ++i) {
-		out << " " << list[i];
+	if (!list.empty()) {
+		out << list.front();
+		for (unsigned int i = 1, size = list.size(); i < size; ++i) {
+			out << " " << list[i];
+		}
 	}
 	return out;
 }
+
+inline std::ostream& operator<< (std::ostream& out, const Rule::Proposal& proposal)
+{
+	out << proposal.GetConditions();
+	return out;
+}
+

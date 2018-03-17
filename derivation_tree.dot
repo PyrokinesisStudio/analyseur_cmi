@@ -1,0 +1,14 @@
+
+digraph{
+_1 [  label="root"];
+_2 [  label="integer"];
+_3 [  label="expr'"];
+_4 [  label="operator"];
+_5 [  label="value"];
+_6 [  label="integer"];
+_1 -> _2 [label="1",];
+_1 -> _3 [label="",];
+_3 -> _4 [label="+",];
+_3 -> _5 [label="",];
+_5 -> _6 [label="2",];
+}

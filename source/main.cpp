@@ -57,9 +57,11 @@ int main(int argc, char **argv)
     const std::string content((std::istreambuf_iterator<char>(fileSrc)), std::istreambuf_iterator<char>());
 	const LexemeList lexemes = lexicalAnalyzer.Process(content);
 
+	std::cout << termcolor::bold << "Lexemes: " << termcolor::reset << std::endl;
 	for (const Lexeme& lexeme : lexemes) {
-		std::cout << lexeme.GetToken() << " (" << lexeme.GetType() << ")" << std::endl;
+		std::cout << "\t" << lexeme.GetToken() << termcolor::italic << " (" << lexeme.GetType() << ")" << termcolor::italic_off << std::endl;
 	}
+	std::cout << std::endl;
 
 	SyntaxAnalyzer analyzer(grammar, lexemes);
 	analyzer.Process(mode);

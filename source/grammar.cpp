@@ -4,6 +4,8 @@
 #include "grammar.h"
 #include "tokenizer.h"
 
+#include <assert.h>
+
 Grammar::Grammar(std::istream& stream)
 {
     std::string line;
@@ -14,18 +16,21 @@ Grammar::Grammar(std::istream& stream)
 			continue;
 		}
 
-		const StringList::const_iterator it = std::find(tokens.begin(), tokens.end(), "::=");
-		if (it == tokens.end()) {
+		const StringList::const_iterator end = tokens.end();
+		const StringList::const_iterator proposalIt = std::find(tokens.begin(), tokens.end(), "::=");
+		const StringList::const_iterator semanticIt = std::find(tokens.begin(), tokens.end(), ";;");
+		if (proposalIt == end) {
 			ErrorM("Invalid BNF: " << line);
 			continue;
 		}
 
-		const StringList leftTokens(tokens.begin(), it);
-		const StringList rightTokens(std::next(it), tokens.end());
+		const StringList leftTokens(tokens.begin(), proposalIt);
+		const StringList proposalTokens(std::next(proposalIt), semanticIt);
+		const StringList semanticTokens((semanticIt == end) ? end : std::next(semanticIt), end);
 
 		const std::string& ruleName = leftTokens.front();
 
-		const Rule rule(ruleName, rightTokens);
+		const Rule rule(ruleName, proposalTokens, semanticTokens);
 		std::cout << "Rule <" << rule.GetName() << ">, ";
 		rule.Print();
 
@@ -41,10 +46,9 @@ Grammar::Grammar(std::istream& stream)
 
 const Rule& Grammar::GetRule(const std::string& name) const
 {
-	static const Rule error;
 	std::map<std::string, Rule>::const_iterator it = m_rules.find(name);
-	if (it != m_rules.cend()) {
-		return it->second;
-	}
-	return error;
+
+	assert(it != m_rules.cend() && "In-existing rule for name");
+	
+	return it->second;
 }

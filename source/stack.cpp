@@ -11,16 +11,27 @@ Stack::Item::Item(const Rule& rule, const Rule::ProposalSet& proposals)
 	m_endProposal = proposals.end();
 }
 
+const Rule& Stack::Item::GetRule() const
+{
+	return m_rule;
+}
+
+const Rule::Proposal& Stack::Item::GetCurrentProposal() const
+{
+	return *m_currentProposal;
+}
+
 void Stack::Item::Unpack(std::deque<Rule::Condition>& stack)
 {
-	const Rule::ConditionList& proposal = *m_currentProposal;
-	stack.insert(stack.end(), proposal.crbegin(), proposal.crend());
+	const Rule::Proposal& proposal = *m_currentProposal;
+	const Rule::ConditionList& conditions = proposal.GetConditions();
+	stack.insert(stack.end(), conditions.crbegin(), conditions.crend());
 }
 
 unsigned short Stack::Item::Pack(std::deque<Rule::Condition>& stack, unsigned short delta)
 {
-	const Rule::ConditionList& proposal = *m_currentProposal;
-	stack.resize(stack.size() - proposal.size() + m_validated + delta);
+	const Rule::Proposal& proposal = *m_currentProposal;
+	stack.resize(stack.size() - proposal.GetConditions().size() + m_validated + delta);
 
 	return m_validated;
 }
@@ -28,7 +39,7 @@ unsigned short Stack::Item::Pack(std::deque<Rule::Condition>& stack, unsigned sh
 bool Stack::Item::Validate()
 {
 	++m_validated;
-	return (m_validated == m_currentProposal->size());
+	return (m_validated == m_currentProposal->GetConditions().size());
 }
 
 bool Stack::Item::Next()
@@ -130,5 +141,18 @@ void Stack::Debug()
 	}
 
 	std::cout << termcolor::reset << std::endl;
+
+}
+
+const Rule& Stack::GetTopRule() const
+{
+	const Item& item = m_items.back();
+	return item.GetRule();
+}
+
+const Rule::Proposal& Stack::GetTopCurrentProposal() const
+{
+	const Item& item = m_items.back();
+	return item.GetCurrentProposal();
 }
 

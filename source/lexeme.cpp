@@ -1,5 +1,7 @@
 #include "lexeme.h"
 
+const Lexeme Lexeme::empty("", "");
+
 Lexeme::Lexeme(const std::string& token, const std::string& type)
 	:m_token(token),
 	m_type(type)

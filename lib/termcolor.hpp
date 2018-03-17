@@ -100,6 +100,31 @@ namespace termcolor
         return stream;
     }
 
+    inline
+    std::ostream& italic(std::ostream& stream)
+    {
+        if (_internal::is_atty(stream))
+        {
+        #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+            stream << "\033[3m";
+        #elif defined(TERMCOLOR_OS_WINDOWS)
+        #endif
+        }
+        return stream;
+    }
+
+    inline
+    std::ostream& italic_off(std::ostream& stream)
+    {
+        if (_internal::is_atty(stream))
+        {
+        #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+            stream << "\033[23m";
+        #elif defined(TERMCOLOR_OS_WINDOWS)
+        #endif
+        }
+        return stream;
+    }
 
     inline
     std::ostream& underline(std::ostream& stream)
