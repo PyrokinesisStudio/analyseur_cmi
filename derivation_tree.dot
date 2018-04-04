@@ -1,14 +1,28 @@
 
 digraph{
 _1 [  label="root"];
-_2 [  label="integer"];
-_3 [  label="expr'"];
-_4 [  label="operator"];
-_5 [  label="value"];
-_6 [  label="integer"];
-_1 -> _2 [label="1",];
-_1 -> _3 [label="",];
-_3 -> _4 [label="+",];
-_3 -> _5 [label="",];
-_5 -> _6 [label="2",];
+_2 [  label="root"];
+_3 [  label="integer"];
+_4 [  label="expr'"];
+_5 [  label="operator"];
+_6 [  label="value"];
+_7 [  label="integer"];
+_8 [  label="expr'"];
+_9 [  label="operator"];
+_10 [  label="value"];
+_11 [  label="integer"];
+_12 [  label="expr'"];
+_13 [  label="E"];
+_1 -> _2 [label="",];
+_2 -> _3 [label="1",];
+_2 -> _4 [label="",];
+_4 -> _5 [label="*",];
+_4 -> _6 [label="",];
+_4 -> _8 [label="",];
+_6 -> _7 [label="3",];
+_8 -> _9 [label="*",];
+_8 -> _10 [label="",];
+_8 -> _12 [label="",];
+_10 -> _11 [label="2",];
+_12 -> _13 [label="",];
 }

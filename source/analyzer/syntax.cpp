@@ -21,7 +21,7 @@ void SyntaxAnalyzer::Process(AnalyzeMode mode) const
 
 	const Rule& root = m_grammar.GetRule("root");
     const Rule::Condition rootCond("<root>");
-	const Rule::Proposal rootProposal({rootCond}, 0);
+	const Rule::Proposal rootProposal({rootCond});
     DerivationNode derivationRoot(rootCond, rootProposal, Lexeme::empty);
 
 	LexemeList::const_iterator it = m_lexemes.begin();
@@ -29,17 +29,18 @@ void SyntaxAnalyzer::Process(AnalyzeMode mode) const
 
     (this->*functions[mode])(root, rootCond, derivationRoot, it, end);
 
-	if (it != end) {
+	if (*it != Lexeme::empty) {
 		ErrorM("Failed to match entire expression.")
 	}
 
-	derivationRoot.Print(0);
+	derivationRoot.Print();
 	derivationRoot.Export("derivation_tree.dot");
 
-	AbstractNode abstractTree = derivationRoot.ConstructAbstractTree();
-// 	abstractTree.Prune();
-	abstractTree.Print(0);
-	abstractTree.Export("abstract_tree.dot");
+	/*AbstractNode abstractTree = derivationRoot.ConstructAbstractTree();
+	abstractTree.Print();
+	abstractTree.Prune();
+	abstractTree.Print();
+	abstractTree.Export("abstract_tree.dot");*/
 }
 
 static void printTokenIt(const LexemeList::const_iterator& it, const LexemeList::const_iterator& end)
@@ -66,16 +67,6 @@ static bool matchRule(const Rule& rule, const Rule::Condition& ruleCond,
 		DebugRuleM(rule, "Testing proposal: " << proposal);
 		for (const Rule::Condition& cond : proposal.GetConditions()) {
 			DebugRuleM(rule, "Testing condition: " << cond);
-
-			/*if (it == end) { // TODO test if there's no E proposal available.
-				FailureRuleM(rule, "Reach end of line with staying condition.");
-				fail = true;
-				break;
-			}*/
-
-			if (it == end) {
-				break;
-			}
 
 			switch (cond.m_type) {
 				case Rule::Condition::TERMINAL:
@@ -134,17 +125,23 @@ void SyntaxAnalyzer::AnalyzeLLNaive(const Rule& root, const Rule::Condition& roo
 void SyntaxAnalyzer::AnalyzeLLStack(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
             LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const
 {
-	Stack stack;
-	stack.ExpandTop(root, root.GetProposals(*it));
+	Stack stack(derivationRoot);
+	stack.ExpandTop(root, rootCond, root.GetProposals(*it));
 
 	while (true) {
-		const bool expanded = ExpandStack(stack, *it);
+		const Lexeme& lexeme = *it;
+
+		const StackAction action = ExpandStack(stack, lexeme);
 		const Rule& rule = stack.GetTopRule();
 		const Rule::Condition& top = stack.TopCondition();
 
-		if (expanded) {
+		if (action == STACK_EXPANDED) {
 			const Rule::Proposal& proposal = stack.GetTopCurrentProposal();
 			DebugRuleM(rule, "Testing proposal: " << proposal);
+		}
+		else if (action == STACK_NO_PROPOSALS) {
+			ErrorRuleM(rule, "No proposals for " << lexeme.GetToken());
+			break;
 		}
 
 		stack.Debug();
@@ -158,14 +155,14 @@ void SyntaxAnalyzer::AnalyzeLLStack(const Rule& root, const Rule::Condition& roo
 			// Don't consume a lexeme.
 			match = true;
 		}
-		else if (top.Match(*it)) {
+		else if (top.Match(lexeme)) {
 			// Consume a lexeme.
 			++it;
 			match = true;
 		}
 		else {
 			FailureM("Failed with condition : " << top);
-			const short delta = stack.ChangeTop(false);
+			const short delta = stack.ChangeTop();
 			// -1 mean that no alternative proposals are available.
 			if (delta == -1) {
 				ErrorM("Failure");
@@ -178,14 +175,14 @@ void SyntaxAnalyzer::AnalyzeLLStack(const Rule& root, const Rule::Condition& roo
 			}
 		}
 
-		if (match && stack.ValidateTop()) {
+		if (match && stack.ValidateTop(lexeme)) {
 			SuccessM("Succeed");
 			break;
 		}
 	}
 }
 
-bool SyntaxAnalyzer::ExpandStack(Stack& stack, const Lexeme& prefix) const
+SyntaxAnalyzer::StackAction SyntaxAnalyzer::ExpandStack(Stack& stack, const Lexeme& prefix) const
 {
 	/* Unneeded loop if the proposals are get from a prefix table as the prefix computation
 	 * compute proposals with always a terminal at its beginning.
@@ -196,10 +193,15 @@ bool SyntaxAnalyzer::ExpandStack(Stack& stack, const Lexeme& prefix) const
 		const Rule::Condition& top = stack.TopCondition();
 		const Rule& rule = m_grammar.GetRule(top.m_value);
 		const Rule::ProposalSet& proposals = rule.GetProposals(prefix);
-		stack.ExpandTop(rule, proposals);
+
+		if (proposals.empty()) {
+			return STACK_NO_PROPOSALS;
+		}
+
+		stack.ExpandTop(rule, top, proposals);
 		expanded = true;
 	}
 
-	return expanded;
+	return (expanded) ? STACK_EXPANDED : STACK_UNCHANGED;
 }
 

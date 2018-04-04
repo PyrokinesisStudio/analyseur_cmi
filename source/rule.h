@@ -44,17 +44,14 @@ public:
 	{
 	private:
 		ConditionList m_conditions;
-		unsigned short m_semanticAction;
 
 	public:
 		static const Proposal empty;
 
 		Proposal();
-		Proposal(const ConditionList& conditions, const std::string& semanticAction);
-		Proposal(const ConditionList& conditions, unsigned short semanticAction);
+		Proposal(const ConditionList& conditions);
 
 		const ConditionList& GetConditions() const;
-		short GetSemanticAction() const;
 	};
 
 	using ProposalSet = std::multiset<Proposal>;
@@ -64,12 +61,11 @@ private:
 	std::map<std::string, ProposalSet> m_prefixedProposals;
 	std::string m_name;
 
-	void ConstructConditionPrefix(const ProposalSet& proposals, const ConditionList suffix,
-			unsigned short cumulSemanticAction, const Grammar& grammar);
+	void ConstructConditionPrefix(const ProposalSet& proposals, const ConditionList suffix, const Grammar& grammar);
 
 public:
 	Rule() = default;
-    Rule(const std::string& name, const StringList& proposalTokens, const StringList& semanticTokens);
+    Rule(const std::string& name, const StringList& proposalTokens);
 
 	void ConstructPrefix(const Grammar& grammar);
 

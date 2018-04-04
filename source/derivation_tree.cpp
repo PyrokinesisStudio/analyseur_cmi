@@ -68,6 +68,7 @@ void DerivationNode::Export(const std::string& filename) const
 AbstractNode DerivationNode::ConstructAbstractTree() const
 {
 	AbstractNode node;
+	/* TODO
 	for (const DerivationNode& child : m_children) {
 		node.AddNode(child.ConstructAbstractTree());
 	}
@@ -78,7 +79,7 @@ AbstractNode DerivationNode::ConstructAbstractTree() const
 	else {
 		const short semanticAction = m_proposal.GetSemanticAction();
 		node.SetValue(node.GetChildren()[semanticAction].GetValue());
-	}
+	}*/
 
 	return node;
 }

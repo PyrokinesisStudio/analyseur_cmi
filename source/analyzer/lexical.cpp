@@ -57,5 +57,8 @@ LexemeList LexicalAnalyzer::Process(const std::string& content)
 		}
 	}
 
+	// Always notice the end of the input by the empty lexeme.
+	list.push_back(Lexeme::empty);
+
 	return list;
 }

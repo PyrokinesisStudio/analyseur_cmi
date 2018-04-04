@@ -52,31 +52,11 @@ bool Rule::Condition::Match(const Lexeme& lexeme) const
 const Rule::Proposal Rule::Proposal::empty;
 
 Rule::Rule::Proposal::Proposal()
-	:m_semanticAction(0)
 {
 }
 
-Rule::Proposal::Proposal(const Rule::ConditionList& conditions, const std::string& semanticAction)
+Rule::Proposal::Proposal(const Rule::ConditionList& conditions)
 	:m_conditions(conditions)
-{
-	if (!semanticAction.empty()) {
-		// Used to parse the name.
-		const Condition& tmpCond(semanticAction);
-		for (unsigned short i = 0, size = m_conditions.size(); i < size; ++i) {
-			if (m_conditions[i] == tmpCond) {
-				m_semanticAction = i;
-				break;
-			}
-		}
-	}
-	else {
-		m_semanticAction = 0;
-	}
-}
-
-Rule::Proposal::Proposal(const Rule::ConditionList& conditions, unsigned short semanticAction)
-	:m_conditions(conditions),
-	m_semanticAction(semanticAction)
 {
 }
 
@@ -85,20 +65,15 @@ const Rule::ConditionList& Rule::Proposal::GetConditions() const
 	return m_conditions;
 }
 
-short Rule::Proposal::GetSemanticAction() const
-{
-	return m_semanticAction;
-}
-
-Rule::Rule(const std::string& name, const StringList& proposalTokens, const StringList& semanticTokens)
+Rule::Rule(const std::string& name, const StringList& proposalTokens)
 {
 	m_name = name.substr(1, name.size() - 2);
 
 	StringList::const_iterator proposalIt = proposalTokens.begin();
 	const StringList::const_iterator proposalEnd = proposalTokens.end();
 
-	StringList::const_iterator semanticIt = semanticTokens.begin();
-	const StringList::const_iterator semanticEnd = semanticTokens.end();
+	/*StringList::const_iterator semanticIt = semanticTokens.begin();
+	const StringList::const_iterator semanticEnd = semanticTokens.end();*/
 
 	while (proposalIt != proposalEnd) {
 		ConditionList conditions;
@@ -106,31 +81,29 @@ Rule::Rule(const std::string& name, const StringList& proposalTokens, const Stri
 			conditions.emplace_back(*proposalIt);
 		}
 
-		std::string semanticAction;
+		/*std::string semanticAction;
 		for (; semanticIt != semanticEnd && *semanticIt != "|"; ++semanticIt) {
 			semanticAction = *semanticIt;
-		}
+		}*/
 
-		m_proposals.emplace(conditions, semanticAction);
+		m_proposals.emplace(conditions);
 
 		// Skip the | token.
 		if (proposalIt != proposalEnd && *proposalIt == "|") {
 			++proposalIt;
 		}
 		// Skip the | token.
-		if (semanticIt != semanticEnd && *semanticIt == "|") {
+		/*if (semanticIt != semanticEnd && *semanticIt == "|") {
 			++semanticIt;
-		}
+		}*/
 	}
 }
 
-void Rule::ConstructConditionPrefix(const ProposalSet& proposals, const ConditionList suffix,
-		unsigned short cumulSemanticAction, const Grammar& grammar)
+void Rule::ConstructConditionPrefix(const ProposalSet& proposals, const ConditionList suffix, const Grammar& grammar)
 {
 	for (const Proposal& proposal : proposals) {
 		const ConditionList& conditions = proposal.GetConditions();
 		const Condition& cond = conditions.front();
-		const unsigned short semanticAction = proposal.GetSemanticAction();
 		switch (cond.m_type) {
 			case Rule::Condition::TERMINAL:
 			case Rule::Condition::TERMINAL_TYPE:
@@ -141,7 +114,7 @@ void Rule::ConstructConditionPrefix(const ProposalSet& proposals, const Conditio
 				conds.insert(conds.end(), suffix.begin(), suffix.end());
 
 				// TODO
-				m_prefixedProposals[cond.m_value].emplace(conds, semanticAction + cumulSemanticAction);
+				m_prefixedProposals[cond.m_value].emplace(conds);
 				break;
 			}
 			case Rule::Condition::NON_TERMINAL:
@@ -156,7 +129,7 @@ void Rule::ConstructConditionPrefix(const ProposalSet& proposals, const Conditio
 				ConditionList suf(++conditions.begin(), conditions.end());
 				suf.insert(suf.end(), suffix.begin(), suffix.end());
 
-				ConstructConditionPrefix(rule.GetProposals(), suf, semanticAction + cumulSemanticAction, grammar);
+				ConstructConditionPrefix(rule.GetProposals(), suf, grammar);
 				break;
 			}
 			default:
@@ -169,7 +142,7 @@ void Rule::ConstructConditionPrefix(const ProposalSet& proposals, const Conditio
 
 void Rule::ConstructPrefix(const Grammar& grammar)
 {
-	ConstructConditionPrefix(m_proposals, {}, 0, grammar);
+	ConstructConditionPrefix(m_proposals, {}, grammar);
 
 	std::cout << "rule " << m_name << std::endl;
 	for (const auto& pair : m_prefixedProposals) {
@@ -215,17 +188,6 @@ void Rule::Print() const
 {
 	std::cout << "options: " << std::endl;
 	for (const Proposal& proposal : m_proposals) {
-		std::cout << "\t";
-		const ConditionList& conditions = proposal.GetConditions();
-		for (const Condition& cond : conditions) {
-			std::cout << cond << " ";
-		}
-
-		const short semanticAction = proposal.GetSemanticAction();
-		if (semanticAction != -1) {
-			std::cout << " || " << conditions[semanticAction] << " (" << semanticAction << ")";
-		}
-
-		std::cout << std::endl;
+		std::cout << "\t" << proposal << std::endl;
 	}
 }

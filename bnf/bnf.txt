@@ -1,11 +1,11 @@
 <value> ::= <t_identifier> | <t_integer> | <t_float>
 
-<expr> ::= <value> <expr'> ;; <expr'>
-<expr'> ::= <t_operator> <value> <expr'> | E ;; <t_operator> | E
+<expr> ::= <value> <expr'>
+<expr'> ::= <t_operator> <value> <expr'> | E
 
-<affe> ::= <t_identifier> "=" <expr> ";" ;; "="
+<affe> ::= <t_identifier> "=" <expr> ";"
 
-<instr> ::= "{" <instr> "}" | <affe> ;; <instr> | <affe>
+<instr> ::= "{" <instr> "}" | <affe>
 
 <cond> ::= "if" "(" <expr> ")" <instr>
 

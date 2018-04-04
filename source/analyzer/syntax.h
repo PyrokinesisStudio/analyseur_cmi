@@ -16,6 +16,12 @@ public:
     };
 
 private:
+	enum StackAction {
+		STACK_NO_PROPOSALS,
+		STACK_EXPANDED,
+		STACK_UNCHANGED
+	};
+
 	const Grammar& m_grammar;
 	const LexemeList& m_lexemes;
 
@@ -24,7 +30,7 @@ private:
 	void AnalyzeLLStack(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
             LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const;
 
-	bool ExpandStack(Stack& stack, const Lexeme& prefix) const;
+	StackAction ExpandStack(Stack& stack, const Lexeme& prefix) const;
 
 public:
 	SyntaxAnalyzer(const Grammar& grammar, const LexemeList& lexemes);

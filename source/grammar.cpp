@@ -18,19 +18,19 @@ Grammar::Grammar(std::istream& stream)
 
 		const StringList::const_iterator end = tokens.end();
 		const StringList::const_iterator proposalIt = std::find(tokens.begin(), tokens.end(), "::=");
-		const StringList::const_iterator semanticIt = std::find(tokens.begin(), tokens.end(), ";;");
+// 		const StringList::const_iterator semanticIt = std::find(tokens.begin(), tokens.end(), ";;");
 		if (proposalIt == end) {
 			ErrorM("Invalid BNF: " << line);
 			continue;
 		}
 
 		const StringList leftTokens(tokens.begin(), proposalIt);
-		const StringList proposalTokens(std::next(proposalIt), semanticIt);
-		const StringList semanticTokens((semanticIt == end) ? end : std::next(semanticIt), end);
+		const StringList proposalTokens(std::next(proposalIt), end);
+// 		const StringList semanticTokens((semanticIt == end) ? end : std::next(semanticIt), end);
 
 		const std::string& ruleName = leftTokens.front();
 
-		const Rule rule(ruleName, proposalTokens, semanticTokens);
+		const Rule rule(ruleName, proposalTokens);
 		std::cout << "Rule <" << rule.GetName() << ">, ";
 		rule.Print();
 

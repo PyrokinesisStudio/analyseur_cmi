@@ -4,6 +4,7 @@
 #include <iterator>
 
 #include "rule.h"
+#include "derivation_tree.h"
 
 class Stack
 {
@@ -14,58 +15,75 @@ public:
 	private:
 		const Rule& m_rule;
 		unsigned short m_nbProposals;
+
 		/// Current proposal unpacked on stack.
 		Rule::ProposalSet::const_iterator m_currentProposal;
 		Rule::ProposalSet::const_iterator m_endProposal;
-		/// Number of validated lexemes.
+
+		/** Number of validated conditions, used to know which condition to test next
+		 * and the number of lexemes to restore on failure.
+		 */
 		unsigned short m_validated;
 
+		/// The non-terminal condition which produce this rule item.
+		const Rule::Condition& m_ruleCond;
+
+		/* This node is added to the parent only when this item is validated,
+		 * if the item is invalid the node is fully reconstructed.
+		 * NOTE: this node is never a leaf, the leaf are created and passed to AddNode(…).
+		 */
+		DerivationNode m_node;
+
 	public:
-		Item(const Rule& rule, const Rule::ProposalSet& proposals);
+		Item(const Rule& rule, const Rule::Condition& ruleCond, const Rule::ProposalSet& proposals);
 
 		const Rule& GetRule() const;
 		const Rule::Proposal& GetCurrentProposal() const;
 
-		/// Unpack lexemes of the current proposal on stack.
-		void Unpack(std::deque<Rule::Condition>& stack);
-		/** Remove lexemes of the current proposal on the stack less a delta.
-		 * Return the number of lexeme which were already validated. */
-		unsigned short Pack(std::deque<Rule::Condition>& stack, unsigned short delta);
+		// Return the top condition not yet validated.
+		const Rule::Condition& GetTopCondition() const;
+
+		unsigned short GetValidated() const;
+
 		/// Change to the next proposal.
 		bool Next();
+
 		/** Notify that a top lexeme was validated.
 		 * Return true if all the lexemes were validated. */
 		bool Validate();
+
+		const DerivationNode& GetNode() const;
+		void AddNode(const DerivationNode& node);
 	};
 
 private:
-	std::deque<Rule::Condition> m_conditions;
-	std::deque<Item> m_items;
+	std::vector<Item> m_items;
+	DerivationNode& m_derivationRoot;
 
 	/// Validate a lexeme on the top item, could validate parent items indirectly.
 	bool ValidateItem();
 
 public:
+	Stack(DerivationNode& derivationRoot);
+
 	const Rule::Condition& TopCondition() const;
+
 	/// Expand a item first proposal on the lexeme stack.
-	void ExpandTop(const Rule& rule, const Rule::ProposalSet& proposals);
-	/** Pack and unpack the last expanded item with one of its next proposal.
-	 * Return the number of char to restore.
-	 * If all the proposals of the current item were tested, the item is pop,
-	 * its lexemes packed and the parent item test an other proposal.
-	 * \param recursive When a item is pop and that the parent item has
-	 * no more proposal, the parent item will be pop and will try to pack its
-	 * lexeme but we didn't restored the last lexeme, the one which was expanded
-	 * in the child item. To avoid restore this lexeme we just notify that
-	 * one less lexeme is to restore.
+	void ExpandTop(const Rule& rule, const Rule::Condition& ruleCond, const Rule::ProposalSet& proposals);
+
+	/** Change the proposal of the top item and return the number of lexemes validated for restoration,
+	 * -1 if there's no more proposal available.
 	 */
-	short ChangeTop(bool recursive);
+	short ChangeTop();
+
 	/// Validate the top lexeme, return true if all the items were validated.
-	bool ValidateTop();
+	bool ValidateTop(const Lexeme& lexeme);
 
 	void Debug();
+
 	/// Used only for debugging purpose.
 	const Rule& GetTopRule() const;
+
 	/// Used only for debugging purpose.
 	const Rule::Proposal& GetTopCurrentProposal() const;
 };
@@ -84,7 +102,7 @@ inline std::ostream& operator<< (std::ostream& out, const Stack::Item& item)
 		out << " | ";
 	}
 
-	out << termcolor::green << item.m_validated << termcolor::reset << ")";
+	out << termcolor::green << item.m_validated << "|" << item.m_currentProposal->GetConditions().size() << termcolor::reset << ")";
 
 	return out;
 }
