@@ -30,7 +30,7 @@ LexicalAnalyzer::LexicalAnalyzer(std::istream& stream)
 		}
 		else {
 			if (m_regexes.find(regexName) == m_regexes.end()) {
-				m_regexes[regexName] = rightTokens.front();
+				m_regexes[regexName] = "^" + rightTokens.front() + "$";
 				std::cout << "Regex " << regexName << ": " << rightTokens.front() << std::endl;;
 			}
 		}

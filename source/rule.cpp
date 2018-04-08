@@ -4,30 +4,29 @@
 
 const char Rule::Condition::names[Rule::Condition::NUM_LEXEME_TYPE] =  {
 		't', // TERMINAL
-		'g', // TERMINAL_TYPE
 		'n', // NON_TERMINAL,
 		'e' // EMPTY
 };
 
+Rule::Condition::Condition(Rule::Condition::Type type, const std::string& value)
+	:m_type(type),
+	m_value(value)
+{
+}
+
 Rule::Condition::Condition(const std::string& token)
 {
 	if (token.front() == '<' && token.back() == '>') {
-		if (token[1] == 't' && token[2] == '_') {
-			m_type = TERMINAL_TYPE;
-			m_value = token.substr(3, token.size() - 4);
-		}
-		else {
-			m_type = NON_TERMINAL;
-			m_value = token.substr(1, token.size() - 2);
-		}
-	}
-	else if (token.front() == '"' && token.back() == '"') {
-		m_type = TERMINAL;
+		m_type = NON_TERMINAL;
 		m_value = token.substr(1, token.size() - 2);
 	}
 	else if (token == "E") {
 		m_type = EMPTY;
 		m_value = "E";
+	}
+	else {
+		m_type = TERMINAL;
+		m_value = token;
 	}
 }
 
@@ -35,10 +34,6 @@ bool Rule::Condition::Match(const Lexeme& lexeme) const
 {
 	switch (m_type) {
 		case TERMINAL:
-		{
-			return (m_value == lexeme.GetToken());
-		}
-		case TERMINAL_TYPE:
 		{
 			return (m_value == lexeme.GetType());
 		}
@@ -106,14 +101,12 @@ void Rule::ConstructConditionPrefix(const ProposalSet& proposals, const Conditio
 		const Condition& cond = conditions.front();
 		switch (cond.m_type) {
 			case Rule::Condition::TERMINAL:
-			case Rule::Condition::TERMINAL_TYPE:
 			case Rule::Condition::EMPTY:
 			{
 				// Constructing the complete proposal by appending the suffix proposal.
 				ConditionList conds = conditions;
 				conds.insert(conds.end(), suffix.begin(), suffix.end());
 
-				// TODO
 				m_prefixedProposals[cond.m_value].emplace(conds);
 				break;
 			}
@@ -144,7 +137,7 @@ void Rule::ConstructPrefix(const Grammar& grammar)
 {
 	ConstructConditionPrefix(m_proposals, {}, grammar);
 
-	std::cout << "rule " << m_name << std::endl;
+	std::cout << "Prefix <" << m_name << ">" << std::endl;
 	for (const auto& pair : m_prefixedProposals) {
 		std::cout << "\t" << pair.first << std::endl;
 		for (const Proposal& proposal : pair.second) {

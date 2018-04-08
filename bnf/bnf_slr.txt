@@ -1,0 +1,3 @@
+<pair> ::= a b
+<expr> ::= <pair> <expr>
+<root> ::= <expr>

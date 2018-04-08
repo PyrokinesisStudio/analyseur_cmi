@@ -17,10 +17,8 @@ public:
 	{
 	public:
 		enum Type {
-			/// A specific terminal such as ponctuation.
+			// A type of terminals such as number, identifier… as defined in the lexical analyzer.
 			TERMINAL,
-			// A group of terminals such as number, identifier… as defined in the lexical analyzer.
-			TERMINAL_TYPE,
 			// A link to a grammar rule.
 			NON_TERMINAL,
 			// An optional empty rule, sometimes used to break a recursion.
@@ -33,6 +31,7 @@ public:
 		std::string m_value;
 
 		Condition() = default;
+		Condition(Type type, const std::string& value);
 		Condition(const std::string& token);
 
 		bool Match(const Lexeme& lexeme) const;
@@ -81,9 +80,32 @@ inline bool operator==(const Rule::Condition& c1, const Rule::Condition& c2)
 	return (c1.m_value == c2.m_value && c1.m_type == c2.m_type);
 }
 
+inline bool operator!=(const Rule::Condition& c1, const Rule::Condition& c2)
+{
+	return !(c1 == c2);
+}
+
+inline bool operator< (const Rule::Condition& c1, const Rule::Condition& c2)
+{
+	if (c1.m_type != c2.m_type) {
+		return (c1.m_type < c2.m_type);
+	}
+
+	if (c1.m_value != c2.m_value) {
+		return (c1.m_value < c2.m_value);
+	}
+
+	return false;
+}
+
 inline bool operator< (const Rule::Proposal& p1, const Rule::Proposal& p2)
 {
 	return (p1.GetConditions().size() > p2.GetConditions().size());
+}
+
+inline bool operator== (const Rule::Proposal& p1, const Rule::Proposal& p2)
+{
+	return p1.GetConditions() == p2.GetConditions();
 }
 
 inline std::ostream& operator<< (std::ostream& out, const Rule::Condition& cond)

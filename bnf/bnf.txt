@@ -1,12 +1,12 @@
-<value> ::= <t_identifier> | <t_integer> | <t_float>
+<value> ::= identifier | integer | float
 
 <expr> ::= <value> <expr'>
-<expr'> ::= <t_operator> <value> <expr'> | E
+<expr'> ::= operator <value> <expr'> | E
 
-<affe> ::= <t_identifier> "=" <expr> ";"
+<affe> ::= identifier eg <expr> semicol
 
-<instr> ::= "{" <instr> "}" | <affe>
+<instr> ::= braco <instr> bracc | <affe>
 
-<cond> ::= "if" "(" <expr> ")" <instr>
+<cond> ::= if paro <expr> parc <instr>
 
-<root> ::= <expr>
+<root> ::= <cond>

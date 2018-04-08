@@ -3,6 +3,7 @@
 #include "syntax.h"
 #include "grammar.h"
 #include "stack.h"
+#include "slr_stack.h"
 
 SyntaxAnalyzer::SyntaxAnalyzer(const Grammar& grammar, const LexemeList& lexemes)
 	:m_grammar(grammar),
@@ -15,8 +16,9 @@ void SyntaxAnalyzer::Process(AnalyzeMode mode) const
 	void (SyntaxAnalyzer::*functions[])
 	(const Rule&, const Rule::Condition&, DerivationNode&, LexemeList::const_iterator&, const LexemeList::const_iterator&) const =
     {
-        &SyntaxAnalyzer::AnalyzeLLNaive, // LL_NAIVE
-        &SyntaxAnalyzer::AnalyzeLLStack // LL_STACK
+        &SyntaxAnalyzer::AnalyzeLlNaive, // LL_NAIVE
+        &SyntaxAnalyzer::AnalyzeLlStack, // LL_STACK
+        &SyntaxAnalyzer::AnalyzeSlr // SLR
     };
 
 	const Rule& root = m_grammar.GetRule("root");
@@ -70,7 +72,6 @@ static bool matchRule(const Rule& rule, const Rule::Condition& ruleCond,
 
 			switch (cond.m_type) {
 				case Rule::Condition::TERMINAL:
-				case Rule::Condition::TERMINAL_TYPE:
 				{
 					printTokenIt(it, end);
 
@@ -116,13 +117,13 @@ static bool matchRule(const Rule& rule, const Rule::Condition& ruleCond,
 	return false;
 }
 
-void SyntaxAnalyzer::AnalyzeLLNaive(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
+void SyntaxAnalyzer::AnalyzeLlNaive(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
             LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const
 {
 	matchRule(root, rootCond, m_grammar, derivationRoot, it, end);
 }
 
-void SyntaxAnalyzer::AnalyzeLLStack(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
+void SyntaxAnalyzer::AnalyzeLlStack(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
             LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const
 {
 	Stack stack(derivationRoot);
@@ -180,6 +181,21 @@ void SyntaxAnalyzer::AnalyzeLLStack(const Rule& root, const Rule::Condition& roo
 			break;
 		}
 	}
+}
+
+void SyntaxAnalyzer::AnalyzeSlr(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
+            LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const
+{
+	const Rule::Proposal proposal({rootCond});
+	// Creating the grammar augmented item.
+	const Item item(Rule::Condition(Rule::Condition::NON_TERMINAL, "root'"), proposal, 0);
+	const ItemSet initialState({item});
+
+	const ItemSet closure = initialState.GetClosure(m_grammar);
+	std::cout << closure << std::endl;
+
+	SlrStack stack(it, end, initialState);
+	stack.Analyze(m_grammar);
 }
 
 SyntaxAnalyzer::StackAction SyntaxAnalyzer::ExpandStack(Stack& stack, const Lexeme& prefix) const

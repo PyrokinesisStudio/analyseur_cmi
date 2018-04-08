@@ -1,7 +1,14 @@
 <separator> ::= {}[]();,+-/*)=
-<ponctuation> ::= ^,|;|\]|\[|\{|\}|\(|\)$
-<integer> ::= ^[0-9]*$
-<float> ::= ^[0-9]*\.[0-9]*f?$
-<keyword> ::= ^(if|else|for|while|do)$
-<identifier> ::= ^[A-z]([A-z]|[0-9]|\.)*$
-<operator> ::= ^\+|\-|/|\*|=$
+
+<paro> ::= \(
+<parc> ::= \)
+<braco> ::= \{
+<bracc> ::= \}
+<eg> ::= =
+<if> ::= if
+<semicol> ::= \;
+
+<integer> ::= [0-9]*
+<float> ::= [0-9]*\.[0-9]*f?
+<identifier> ::= ([A-z]([A-z]|[0-9]|\.)*)[^(if)]
+<operator> ::= \+|\-|/|\*

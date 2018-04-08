@@ -39,7 +39,8 @@ int main(int argc, char **argv)
 		const std::string modeStr = argv[4];
 		static const std::map<std::string, SyntaxAnalyzer::AnalyzeMode> convertTable = {
 			{"naive", SyntaxAnalyzer::LL_NAIVE},
-			{"stack", SyntaxAnalyzer::LL_STACK}
+			{"stack", SyntaxAnalyzer::LL_STACK},
+			{"slr", SyntaxAnalyzer::SLR}
 		};
 
 		const std::map<std::string, SyntaxAnalyzer::AnalyzeMode>::const_iterator it = convertTable.find(modeStr);

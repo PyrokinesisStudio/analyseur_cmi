@@ -12,7 +12,8 @@ class SyntaxAnalyzer
 public:
     enum AnalyzeMode {
         LL_NAIVE = 0,
-        LL_STACK
+        LL_STACK,
+		SLR
     };
 
 private:
@@ -25,9 +26,11 @@ private:
 	const Grammar& m_grammar;
 	const LexemeList& m_lexemes;
 
-	void AnalyzeLLNaive(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
+	void AnalyzeLlNaive(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
             LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const;
-	void AnalyzeLLStack(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
+	void AnalyzeLlStack(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
+            LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const;
+	void AnalyzeSlr(const Rule& root, const Rule::Condition& rootCond, DerivationNode& derivationRoot,
             LexemeList::const_iterator& it, const LexemeList::const_iterator& end) const;
 
 	StackAction ExpandStack(Stack& stack, const Lexeme& prefix) const;
