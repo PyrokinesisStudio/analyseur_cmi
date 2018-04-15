@@ -5,6 +5,7 @@
 \usetikzlibrary{arrows,automata}
 \usepackage{fancyvrb}
 \usepackage[french,onelanguage]{algorithm2e}
+\usepackage{hyperref}
 
 \useoutertheme{infolines}
 \setbeamersize{text margin left=1cm,text margin right=1cm}
@@ -577,8 +578,21 @@ aabb
 
 \subsection{Usage}
 
-\begin{frame}
- 
+\begin{frame}[fragile]
+	Dépot git~: \url{https://github.com/panzergame/analyseur_cmi}
+
+	\begin{verbatim}
+analyzer input_file bnf_file regex_file method
+	\end{verbatim}
+
+	\begin{itemize}
+		\item \texttt{input\_file}~: Fichier texte à analyser.
+		\item \texttt{bnf\_file}~: Fichier de description des productions.
+		\item \texttt{regex\_file}~: Fichier de description des règles lexicales et des séparateurs.
+		\item \texttt{method}~: La méthode d'analyse, \texttt{naive} pour LL récursif, \texttt{stack} pour LL avec pile et \texttt{slr} pour SLR.
+		\item Résultat~: un historique de l'analyse en console et un arbre de dérivation au format \texttt{.dot}~: \texttt{derivation\_tree.dot}.
+	\end{itemize}
+
 \end{frame}
 
 
