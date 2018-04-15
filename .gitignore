@@ -1,3 +1,11 @@
 build/*
 *.kdev4
 *.dot
+*.snm
+*.aux
+*.log
+*.nav
+*.out
+*.gz
+*.vrb
+*.toc

@@ -1,0 +1,82 @@
+\usepackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{00A0}{ }%Permet d'éviter certains conflits de caractères invisibles
+\usepackage{amssymb}            % Principaux symboles
+%\usepackage{fontspec}
+%\usepackage{xunicode}
+%\usepackage{xltxtra}
+\usepackage[frenchb]{babel}
+%\defaultfontfeatures{Scale=MatchLowercase}
+%\setmainfont[Mapping=tex-text,Ligatures={Common, Historical}]{Linux Libertine O}
+%\setsansfont[Mapping=tex-text]{Linux Biolinum O}
+%\setmonofont[Scale=0.75]{DejaVu Sans Mono}
+
+%% Packages pour le texte
+%\usepackage[misc,geometry]{ifsym}	% Police numéros battons
+\usepackage{pifont}		% Police \ding
+\usepackage{eurosym}		% Symbole de l'euro
+\usepackage{soul}		% Souligner
+\usepackage{enumerate}		% Listes
+\usepackage{verbatim}		% Codes source
+\usepackage{moreverb}		%	et listings
+\usepackage{textcomp}
+\usepackage{multicol}
+
+%% Packages pour les tableaux
+\usepackage{array}		% Outils supplémentaires
+\usepackage{multirow}		% Colonnes multiples
+\usepackage{tabularx}		% Largeur totale donnée
+\usepackage{longtable}		% Sur plusieurs pages
+
+%% Les packages pour les dessins
+\usepackage{graphicx}		% Insertion de figures
+%\usepackage{picins}		% Dans un paragraphe
+\usepackage{epic}		% Capacités graphiques
+\usepackage{eepic}		% 	étendues
+\usepackage{afterpage}		% Voir page 69
+\usepackage{rotating}		% Tourner du texte
+\usepackage{caption}		% Légendes
+% \addto\captionsfrench{\def\figurename{}}
+
+%% Packages pour les maths
+\usepackage{amsmath}		% Commandes essentielles
+\usepackage{amssymb}		% Principaux symboles
+\usepackage{mathrsfs}		% Police calligraphique
+\usepackage{theorem}		% Théorèmes
+%\usepackage{tikz}		% Courbes
+\usepackage{esvect}            % Vecteurs
+%\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{pgf}
+%\usetikzlibrary{arrows}
+% Packages pour la physique
+%\usepackage{sistyle}		% Unités
+\usepackage[version=3]{mhchem}	% Formules chimiques
+\usepackage{etex}
+%\usepackage{m-pictex,m-ch-en}
+
+%\usepackage{media9}
+\usepackage{multimedia}		% Vidéos dans la présentation
+%\usepackage{movie15}
+
+%Ajout d'images de fond:
+\usepackage{eso-pic}
+\usepackage{wallpaper}
+
+\usepackage{ccicons}		% Licence creativecommons
+\usepackage{xcolor,colortbl}
+
+%\SIdecimalsign{,}
+
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Sommaire}
+    \begin{multicols}{2}
+      {\small
+				\setcounter{tocdepth}{2}
+        \tableofcontents[currentsection, hideothersubsections]}
+    \end{multicols}
+  \end{frame}
+}
+
+\usetheme{Warsaw}
