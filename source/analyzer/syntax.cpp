@@ -188,14 +188,15 @@ void SyntaxAnalyzer::AnalyzeSlr(const Rule& root, const Rule::Condition& rootCon
 {
 	const Rule::Proposal proposal({rootCond});
 	// Creating the grammar augmented item.
-	const Item item(Rule::Condition(Rule::Condition::NON_TERMINAL, "root'"), proposal, 0);
-	const ItemSet initialState({item});
+	const Rule::Condition endCond(Rule::Condition::NON_TERMINAL, "root'");
+	const Item item(endCond, proposal, 0);
+	const ItemSet initialState = ItemSet({item}).GetClosure(m_grammar);
 
-	const ItemSet closure = initialState.GetClosure(m_grammar);
-	std::cout << closure << std::endl;
-
-	SlrStack stack(it, end, initialState);
+	SlrStack stack(it, end, initialState, endCond);
 	stack.Analyze(m_grammar);
+
+	// The SLR could never validate the lexemes without consuming all of them, force the iterator to the end.
+	it = end;
 }
 
 SyntaxAnalyzer::StackAction SyntaxAnalyzer::ExpandStack(Stack& stack, const Lexeme& prefix) const

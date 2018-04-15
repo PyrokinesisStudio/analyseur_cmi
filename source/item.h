@@ -88,8 +88,9 @@ inline bool operator< (const Item& i1, const Item& i2)
 inline std::ostream& operator<< (std::ostream& out, const Item& item)
 {
 	const Rule::ConditionList& conditions = item.GetProposal().GetConditions();
-	const unsigned pos = item.GetPosition();
-	for (unsigned short i = 0, size = conditions.size(); i < size; ++i) {
+	const unsigned short pos = item.GetPosition();
+	const unsigned short size = conditions.size();
+	for (unsigned short i = 0; i < size; ++i) {
 		if (i == pos) {
 			out << "-";
 		}
@@ -98,6 +99,9 @@ inline std::ostream& operator<< (std::ostream& out, const Item& item)
 		}
 
 		out << conditions[i];
+	}
+	if (pos == size) {
+		out << "-";
 	}
 
 	return out;

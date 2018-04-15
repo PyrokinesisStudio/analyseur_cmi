@@ -89,9 +89,7 @@ void ItemSet::GetClosureRecursive(const Grammar& grammar, std::multiset<Item>& i
 
 Item ItemSet::GetReduction(const Grammar& grammar) const
 {
-	const ItemSet items = GetClosure(grammar);
-
-	for (const Item& item : items.m_items) {
+	for (const Item& item : m_items) {
 		if (item.GetPosition() == item.GetProposal().GetConditions().size()) {
 			return item;
 		}
@@ -103,8 +101,7 @@ Item ItemSet::GetReduction(const Grammar& grammar) const
 ItemSet ItemSet::GetTransition(const Grammar& grammar, const Rule::Condition& condTrans) const
 {
 	std::multiset<Item> items;
-	const ItemSet closure = GetClosure(grammar);
-	for (const Item& item : closure.m_items) {
+	for (const Item& item : m_items) {
 		const Rule::Proposal& proposal = item.GetProposal();
 		const Rule::ConditionList& conditions = proposal.GetConditions();
 
