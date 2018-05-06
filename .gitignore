@@ -9,3 +9,5 @@ build/*
 *.gz
 *.vrb
 *.toc
+*.dvi
+
